@@ -1,7 +1,10 @@
+use std::fs::File;
+use std::io::Write;
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 use actix_web::Responder;
+
 use reqwest::Client;
 use reqwest::header::{HeaderMap, HeaderValue, Keys};
 use serde::{Deserialize, Serialize};
@@ -100,9 +103,11 @@ async fn main() -> Result<(), reqwest::Error> {
         let deser_response: ResWrapper = serde_json::from_str(&*text_resp).expect("");
         println!("{:#?}", deser_response);*/
 
-        let text_resp:ResWrapper = response.json().await.expect("err");
-        println!("{:#?}", text_resp);
 
+        let mut file = File::create("res_struct.json").expect("err create");
+        let response: ResWrapper = response.json().await.expect("err conv to json");
+        file.write_all(response.as_bytes()).expect("err to write obj struct")
+        let j = serde_json::to_string(response)
 }else {
       println!("Err {:?} {}", response.status(), response.text().await.expect("err post error response"));
     }
